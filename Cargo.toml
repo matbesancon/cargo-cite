@@ -1,0 +1,14 @@
+[package]
+name = "cargo-cite"
+version = "0.1.0"
+authors = ["Mathieu Besançon <mathieu.besancon@gmail.com>"]
+edition = "2018"
+
+[[bin]]
+name = "cargo-cite"
+
+[dependencies]
+toml = "0.5"
+term = "0.5"
+gumdrop = "0.5"
+chrono = "0.4"
