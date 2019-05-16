@@ -128,11 +128,13 @@ fn main() {
                 if String::from(p.to_str().unwrap()).contains("README") {
                     println!("Appending to readme file: {:?}", p);
                     match fs::OpenOptions::new().append(true).open(p) {
+                        Err(e) => println!("Error opening readme file: {:?}", e),
                         Ok(mut readme_file) => {
                             let readme_section = t.package.readme_section();
-                            readme_file.write(readme_section.as_bytes());
+                            if let Err(e) = readme_file.write(readme_section.as_bytes()) {
+                                println!("Error while appending to README file: {:?}", e);
+                            }
                         }
-                        Err(e) => println!("Error appending to readme file: {:?}", e),
                     }
                 }
             }
