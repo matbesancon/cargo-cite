@@ -17,6 +17,7 @@ use chrono::Datelike;
 extern crate serde;
 
 const CARGO_FILE: &str = "Cargo.toml";
+const CITATION_FILE: &str = "CITATION.bib";
 
 #[derive(Debug, Deserialize)]
 struct ManifestInfo {
@@ -35,8 +36,6 @@ struct PackageInfo {
 
 #[derive(Debug, Options)]
 struct CitationOption {
-    // Boolean options are treated as flags, taking no additional values.
-    // The optional `help` attribute is displayed in `usage` text.
     #[options(help = "print help message")]
     help: bool,
 
@@ -50,6 +49,12 @@ struct CitationOption {
         help = "Append a \"Citing\" section to the README. Will create the file if not present."
     )]
     readme_append: bool,
+
+    #[options(help = "Path to the crate, default to current directory")]
+    path: Option<String>,
+
+    #[options(help = "Citation file to add, default to CITATION.bib (recommended). \"STDOUT\" for outputing to standard output.")]
+    filename: Option<String>,
 }
 
 impl PackageInfo {
@@ -94,26 +99,30 @@ If you found this software useful consider citing it. See CITATION.bib for the r
 fn main() {
     let opt = CitationOption::parse_args_default_or_exit();
 
-    let dir = env::current_dir().unwrap();
+    let dir = match opt.path{
+        Some(s) => PathBuf::from(s),
+        None => env::current_dir().unwrap(),
+    };
+
     let cargo_path = dir.join(PathBuf::from(CARGO_FILE));
 
     if !cargo_path.exists() {
         println!("Current directory is not a Cargo project.");
         return;
     }
-    let mut file = match fs::File::open(&cargo_path) {
+    let mut cargo_file = match fs::File::open(&cargo_path) {
         Err(_) => panic!("Unable to read Cargo file from {:?}", &cargo_path),
         Ok(file) => file,
     };
     let mut cargo_content = String::new();
-    if let Err(e) = file.read_to_string(&mut cargo_content) {
+    if let Err(e) = cargo_file.read_to_string(&mut cargo_content) {
         panic!(e);
     }
 
     let t: ManifestInfo = toml::from_str(cargo_content.as_str()).unwrap();
 
     if opt.readme_append {
-        for f in std::fs::read_dir(dir).unwrap() {
+        for f in fs::read_dir(&dir).unwrap() {
             if let Ok(dir_entry) = f {
                 let p = dir_entry.path();
                 if String::from(p.to_str().unwrap()).contains("README") {
@@ -123,7 +132,7 @@ fn main() {
                             let readme_section = t.package.readme_section();
                             readme_file.write(readme_section.as_bytes());
                         }
-                        Err(e) => println!("Error appending to readme: {:?}", e),
+                        Err(e) => println!("Error appending to readme file: {:?}", e),
                     }
                 }
             }
@@ -132,4 +141,18 @@ fn main() {
 
     let t: ManifestInfo = toml::from_str(cargo_content.as_str()).unwrap();
     let r = t.package.build_bibtex();
+
+    let output_file = if let Some(o) = opt.filename {
+        o
+    } else {
+        String::from(CITATION_FILE)
+    };
+    let file_path = dir.join(PathBuf::from(output_file.as_str()));
+    if file_path.exists() {
+        println!("Citation file already found.");
+        return;
+    }
+    if let Err(e) = fs::write(file_path, r.as_bytes()) {
+        println!("Error writing citation file: {:?}", e);
+    }
 }
