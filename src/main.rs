@@ -8,7 +8,7 @@ use gumdrop::Options;
 
 use std::env;
 use std::fs;
-use std::io::Read;
+use std::io::{Read, Write};
 use std::path::PathBuf;
 
 use chrono::Datelike;
@@ -46,7 +46,9 @@ struct CitationOption {
     #[options(help = "Over-write existing CITATION.bib file")]
     overwrite: bool,
 
-    #[options(help = "Append a \"Citing\" section to the README. Will create the file if not present.")]
+    #[options(
+        help = "Append a \"Citing\" section to the README. Will create the file if not present."
+    )]
     readme_append: bool,
 }
 
@@ -78,12 +80,14 @@ impl PackageInfo {
         buf + "}\n"
     }
 
-    pub fn readme_section(&self) -> String {
-        return String::from_str("
-            ## Citing
+    fn readme_section(&self) -> String {
+        return String::from(
+"
+## Citing
 
-            If you found this software useful consider citing it. See CITATION.bib for the recommended BibTex entry.
-            ");
+If you found this software useful consider citing it. See CITATION.bib for the recommended BibTeX entry.
+"
+        );
     }
 }
 
@@ -91,23 +95,41 @@ fn main() {
     let opt = CitationOption::parse_args_default_or_exit();
 
     let dir = env::current_dir().unwrap();
-    let cargo_path = PathBuf::from(CARGO_FILE);
-    let abs_path = dir.join(cargo_path);
+    let cargo_path = dir.join(PathBuf::from(CARGO_FILE));
 
-    if !abs_path.exists() {
+    if !cargo_path.exists() {
         println!("Current directory is not a Cargo project.");
         return;
     }
-    let mut file = match fs::File::open(&abs_path) {
-        Err(_) => panic!("Unable to read Cargo file from {:?}", &abs_path),
+    let mut file = match fs::File::open(&cargo_path) {
+        Err(_) => panic!("Unable to read Cargo file from {:?}", &cargo_path),
         Ok(file) => file,
     };
     let mut cargo_content = String::new();
     if let Err(e) = file.read_to_string(&mut cargo_content) {
         panic!(e);
     }
+
+    let t: ManifestInfo = toml::from_str(cargo_content.as_str()).unwrap();
+
+    if opt.readme_append {
+        for f in std::fs::read_dir(dir).unwrap() {
+            if let Ok(dir_entry) = f {
+                let p = dir_entry.path();
+                if String::from(p.to_str().unwrap()).contains("README") {
+                    println!("Appending to readme file: {:?}", p);
+                    match fs::OpenOptions::new().append(true).open(p) {
+                        Ok(mut readme_file) => {
+                            let readme_section = t.package.readme_section();
+                            readme_file.write(readme_section.as_bytes());
+                        }
+                        Err(e) => println!("Error appending to readme: {:?}", e),
+                    }
+                }
+            }
+        }
+    }
+
     let t: ManifestInfo = toml::from_str(cargo_content.as_str()).unwrap();
     let r = t.package.build_bibtex();
-    println!("{}", r);
-    println!("{}", t.package.readme_section());
 }
