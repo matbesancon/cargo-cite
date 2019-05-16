@@ -45,6 +45,9 @@ struct CitationOption {
 
     #[options(help = "Over-write existing CITATION.bib file")]
     overwrite: bool,
+
+    #[options(help = "Append a \"Citing\" section to the README. Will create the file if not present.")]
+    readme_append: bool,
 }
 
 impl PackageInfo {
@@ -74,10 +77,19 @@ impl PackageInfo {
         };
         buf + "}\n"
     }
+
+    pub fn readme_section(&self) -> String {
+        return String::from_str("
+            ## Citing
+
+            If you found this software useful consider citing it. See CITATION.bib for the recommended BibTex entry.
+            ");
+    }
 }
 
 fn main() {
     let opt = CitationOption::parse_args_default_or_exit();
+
     let dir = env::current_dir().unwrap();
     let cargo_path = PathBuf::from(CARGO_FILE);
     let abs_path = dir.join(cargo_path);
@@ -95,7 +107,7 @@ fn main() {
         panic!(e);
     }
     let t: ManifestInfo = toml::from_str(cargo_content.as_str()).unwrap();
-    println!("t: {:?}", t);
     let r = t.package.build_bibtex();
     println!("{}", r);
+    println!("{}", t.package.readme_section());
 }
