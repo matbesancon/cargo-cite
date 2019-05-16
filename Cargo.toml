@@ -3,7 +3,7 @@ name = "cargo-cite"
 version = "0.1.0"
 authors = ["Mathieu Besançon <mathieu.besancon@gmail.com>"]
 edition = "2018"
-
+description = "A cargo extension to produce BibTeX from crates"
 [[bin]]
 name = "cargo-cite"
 
@@ -12,3 +12,4 @@ toml = "0.5"
 term = "0.5"
 gumdrop = "0.5"
 chrono = "0.4"
+serde = { version = "1.0", features = ["derive"] }
