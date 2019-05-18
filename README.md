@@ -27,13 +27,18 @@ Say you are using [ndarray](https://github.com/rust-ndarray/ndarray.git)
 for your work, but they have not published a CITATION.bib yet:
 
 ```
-git clone https://github.com/rust-ndarray/ndarray.git
-cd ndarray
-cargo-cite
+$ git clone https://github.com/rust-ndarray/ndarray.git
+$ cd ndarray
+$ cargo cite
 ```
 
-A `CITATION.bib` file has been created.
+A `CITATION.bib` file has been created. To add the reference to this file
+in the README, run:
+
+```
+$ cargo cite -r
+```
 
 ## Available options
 
-See `cargo-cite --help` for options.
+See `cargo cite --help` for options.

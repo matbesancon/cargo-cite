@@ -36,6 +36,11 @@ struct PackageInfo {
 
 #[derive(Debug, Options)]
 struct CitationOption {
+
+    // necessary to use as "cargo cite"
+    #[options(free)]
+    free: Vec<String>,
+
     #[options(help = "print help message")]
     help: bool,
 
