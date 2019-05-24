@@ -17,8 +17,8 @@ software, as you can see in the Julia [repo](https://github.com/JuliaLang/julia/
 
 `cargo-cite` is an experimental Rust crate to generate a
 `CITATION.bib` file for a Rust project based on its Cargo.toml file.
-It can be yours or someone else's. Once the `CITATION.bib` file created,
-feel free to add other entries to it, for example a software paper
+It can be yours or someone else's. Once the `CITATION.bib` file is created,
+feel free to add other entries to it - for example, a software paper
 published in the [Journal of Open-Source Software](http://joss.theoj.org).
 
 ## Usage
