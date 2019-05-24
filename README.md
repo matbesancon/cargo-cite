@@ -1,4 +1,7 @@
-# cargo-cite: a cargo extension to produce BibTeX from crates
+# cargo-cite
+## A cargo extension to produce a citable BibTeX from crates
+
+[![Build Status](https://travis-ci.org/matbesancon/cargo-cite.svg?branch=master)](https://travis-ci.org/matbesancon/cargo-cite)
 
 ## Why
 
