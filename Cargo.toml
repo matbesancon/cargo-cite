@@ -3,7 +3,7 @@ name = "cargo-cite"
 version = "0.1.0"
 authors = ["Mathieu Besançon <mathieu.besancon@gmail.com>"]
 edition = "2018"
-description = "A cargo extension to produce BibTeX from crates"
+description = "A cargo extension to produce a citable BibTeX from crates"
 [[bin]]
 name = "cargo-cite"
 
