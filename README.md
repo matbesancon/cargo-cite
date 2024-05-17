@@ -3,6 +3,17 @@
 
 [![Build Status](https://travis-ci.org/matbesancon/cargo-cite.svg?branch=master)](https://travis-ci.org/matbesancon/cargo-cite)
 
+## Installation
+
+`cargo-cite` is not registered so you will need the following steps:
+```shell
+git clone git@github.com:matbesancon/cargo-cite.git
+cd cargo-cite
+cargo install --path .
+```
+
+The command `cargo cite` will then be available.
+
 ## Why
 
 Citing software is important to acknowledge the work of others,
