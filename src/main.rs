@@ -36,7 +36,6 @@ struct PackageInfo {
 
 #[derive(Debug, Options)]
 struct CitationOption {
-
     // necessary to use as "cargo cite"
     #[options(free)]
     free: Vec<String>,
@@ -58,7 +57,9 @@ struct CitationOption {
     #[options(help = "Path to the crate, default to current directory")]
     path: Option<String>,
 
-    #[options(help = "Citation file to add, default to CITATION.bib (recommended). \"STDOUT\" for outputing to standard output.")]
+    #[options(
+        help = "Citation file to add, default to CITATION.bib (recommended). \"STDOUT\" for outputing to standard output."
+    )]
     filename: Option<String>,
 }
 
@@ -81,7 +82,7 @@ impl PackageInfo {
         buf = buf + month_fmt.as_str() + year_fmt.as_str();
         buf = match &self.repository {
             None => buf,
-            Some(url) => buf + "\turl = {{" + url.as_str() + "}}\n",
+            Some(url) => buf + "\turl = {{" + url.as_str() + "}},\n",
         };
         buf = match &self.keywords {
             None => buf,
@@ -104,7 +105,7 @@ If you found this software useful consider citing it. See CITATION.bib for the r
 fn main() {
     let opt = CitationOption::parse_args_default_or_exit();
 
-    let dir = match opt.path{
+    let dir = match opt.path {
         Some(s) => PathBuf::from(s),
         None => env::current_dir().unwrap(),
     };
